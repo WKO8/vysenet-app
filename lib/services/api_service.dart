@@ -46,4 +46,16 @@ class ApiService {
     );
     if (res.statusCode != 200) throw Exception('Erro ao autorizar: ${res.body}');
   }
+
+  /// Deleta um dispositivo autorizado fornecendo o MAC.
+  static Future<void> deleteAuthorizedDevice(String mac) async {
+    final res = await http.delete(
+      Uri.parse('$baseUrl/authorized'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'mac': mac}),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('Erro ao deletar dispositivo: ${res.body}');
+    }
+  }
 }

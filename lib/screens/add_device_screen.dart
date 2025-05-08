@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vysenet/models/authorized_device.dart';
 import 'package:vysenet/services/api_service.dart';
-import 'package:vysenet/services/firestore_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
 import 'package:vysenet/widgets/custom_button.dart';
 import 'package:vysenet/widgets/custom_text_field.dart';
@@ -15,14 +15,13 @@ class AddDeviceScreen extends StatefulWidget {
 
 class _AddDeviceScreenState extends State<AddDeviceScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final FirestoreService _firestoreService = FirestoreService();
 
-  // Controle de inputs de IP e MAC
-  final _ipController = TextEditingController();
+  // Controle de inputs de name e MAC
+  final _nameController = TextEditingController();
   final _macController = TextEditingController();
 
-  List<Map<String, String>> _devices = [];
-  // List<AuthorizedDevice> _devicesAPI = [];
+  // List<Map<String, String>> _devices = [];
+  List<AuthorizedDevice> _devices = [];
 
   @override
   void initState() {
@@ -33,8 +32,8 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
   // Carregar dispositivos de um arquivo JSON (ou de outro meio)
   Future<void> _loadDevices() async {
     try {
-      // final devices = await ApiService.getAuthorizedDevices();
-      final devices = await _firestoreService.getAllowedDevices();
+      final devices = await ApiService.getAuthorizedDevices();
+      // final devices = await _firestoreService.getAllowedDevices();
       setState(() {
         _devices = devices;
       });
@@ -45,13 +44,12 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
 
   // Função para adicionar dispositivo
   void _addDevice() async {
-    final ip = _ipController.text.trim();
+    final name = _nameController.text.trim();
     final mac = _macController.text.trim();
-    if (ip.isNotEmpty && mac.isNotEmpty) {
+    if (name.isNotEmpty && mac.isNotEmpty) {
       try {
-        await _firestoreService.addDevice(ip, mac);
-        ApiService.authorize(mac, ip);
-        _ipController.clear();
+        ApiService.authorize(mac, name);
+        _nameController.clear();
         _macController.clear();
         _loadDevices();
       } catch (e) {
@@ -65,11 +63,9 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
 
   // Função para excluir dispositivo
   void _deleteDevice(int index) async {
-    final deviceId = _devices[index]['id'];
-    if (deviceId != null) {
-      await _firestoreService.deleteDevice(deviceId);
-      _loadDevices();  // Recarrega a lista
-    }
+    final deviceMAC = _devices[index].mac;
+    await ApiService.deleteAuthorizedDevice(deviceMAC);
+    _loadDevices();
   }
 
   @override
@@ -117,8 +113,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(50),
-                      bottomRight: Radius.circular(50),
+                      bottomRight: Radius.circular(100),
                     ),
                   ),
                   alignment: Alignment.center,
@@ -155,14 +150,14 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                     Container(
                       margin: const EdgeInsets.only(left: 20, right: 20),
                       child: CustomTextField(
-                        text: "IP",
+                        text: "Nome",
                         textStyle: TextStyle(),
                         backgroundColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15)),
                           borderSide: BorderSide.none,
                         ),
-                        editingController: _ipController,  // Usando o controlador aqui
+                        editingController: _nameController,  // Usando o controlador aqui
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -240,7 +235,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "IP: ${device['ip']}",
+                                        "Nome: ${device.name}",
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -249,7 +244,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        "MAC: ${device['mac']}",
+                                        "MAC: ${device.mac}",
                                         style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.white,

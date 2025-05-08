@@ -20,6 +20,12 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDevices();
+  }
   List<Device> _devices = [];
   List<AuthorizedDevice> _allowedDevices = []; // Lista de dispositivos autorizados
   int _unauthorizedCount = 0; // Contagem de dispositivos não autorizados
