@@ -1,3 +1,3 @@
-# vysenet
+# VyseNet
 
-A new Flutter project.
+A network monitor application to easily identify strange devices on your LAN
