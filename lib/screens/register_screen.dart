@@ -160,7 +160,7 @@ class RegisterScreen extends StatelessWidget {
                                   passwordController.clear();
 
                                   // Redireciona para a tela de login
-                                  Navigator.pushNamed(context, '/signin');
+                                  Navigator.pushNamed(context, '/login');
                                 }
                               } else {
                                 // Exibir mensagem de erro se os campos estiverem vazios
