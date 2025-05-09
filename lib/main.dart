@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:vysenet/firebase_options.dart';
 import 'package:vysenet/screens/scan_screen.dart';
+import 'package:vysenet/services/auth_shared_preference_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/add_device_screen.dart';
 import 'screens/profile_screen.dart';
@@ -23,11 +24,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) { // Chamando initialize
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ScanScreen(),
+      home: FutureBuilder<bool>(
+        future: AuthSharedPreferences.loadLoggedInState(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show a loading indicator while waiting
+          } else if (snapshot.hasData && snapshot.data == true) {
+            return ScanScreen(); // Navigate to ProfileScreen if logged in
+          } else {
+            return LoginScreen(); // Navigate to LoginScreen if not logged in
+          }
+        },
+      ),
       routes: {
         '/login': (_) => LoginScreen(),
         '/register': (_) => RegisterScreen(),
-        '/reset': (_) => RecoveryPasswordScreen(),
+        '/recovery': (_) => RecoveryPasswordScreen(),
         '/add': (_) => AddDeviceScreen(),
         '/scan': (_) => ScanScreen(),
         '/profile': (_) => ProfileScreen(),

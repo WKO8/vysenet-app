@@ -120,7 +120,7 @@ class RecoveryPasswordScreen extends StatelessWidget {
                           }),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/signin');
+                              Navigator.pushNamed(context, '/register');
                             },
                             child: RichText(
                               text: const TextSpan(
@@ -165,7 +165,7 @@ class RecoveryPasswordScreen extends StatelessWidget {
                           height: 50,
                           color: Colors.white,
                           onPressed: () => {
-                            Navigator.pushNamed(context, '/signin')
+                            Navigator.pushNamed(context, '/login')
                           },
                         );
                       }),

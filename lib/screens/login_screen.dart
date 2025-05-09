@@ -221,25 +221,6 @@ class LoginScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Positioned(
-              top: 0,
-              left: 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 30.0, left: 15.0),
-                child: CustomButton(
-                  scaffoldContext: context,
-                  content: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  width: 60,
-                  height: 40,
-                  borderRadius: BorderRadius.circular(15),
-                  color: const Color(0xFF448AB5),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ),
           ],
         )
       ),

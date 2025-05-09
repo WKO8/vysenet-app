@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vysenet/models/authorized_device.dart';
 import 'package:vysenet/models/device.dart';
 import 'package:vysenet/services/api_service.dart';
+import 'package:vysenet/services/auth_shared_preference_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
 
 import '../components/custom_app_bar.dart';
@@ -25,6 +26,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadDeviceData();
+  }
+
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut(); // Firebase sign out
+    await AuthSharedPreferences.saveLoggedInState(false); // SharedPreferences
+
+    // Navega para a tela de login e remove as rotas anteriores
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
   Future<void> _loadDeviceData() async {
@@ -92,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Foto e nome do usuário
                       Padding(
@@ -111,10 +121,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 15),
+                            const SizedBox(width: 50),
                             Expanded(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,6 +144,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  const SizedBox(width: 30),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.logout, 
+                                      color: Colors.red,
+                                      size: 40,
+                                    ),
+                                    onPressed: _logout,
                                   ),
                                 ],
                               ),
