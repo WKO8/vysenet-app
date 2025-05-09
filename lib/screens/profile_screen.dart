@@ -6,7 +6,6 @@ import 'package:vysenet/models/authorized_device.dart';
 import 'package:vysenet/models/device.dart';
 import 'package:vysenet/services/api_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
-import 'package:vysenet/widgets/custom_button.dart';
 
 import '../components/custom_app_bar.dart';
 

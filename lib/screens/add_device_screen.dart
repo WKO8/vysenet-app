@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vysenet/models/authorized_device.dart';
-import 'package:vysenet/models/device.dart';
 import 'package:vysenet/services/api_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
 import 'package:vysenet/widgets/custom_button.dart';
@@ -175,13 +174,9 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
                           // Ajuste a altura para caber antes da borda inferior
                           child: ListView.builder(
                             padding: const EdgeInsets.only(top: 0),
-                            itemCount: 10, //_devices.length,
+                            itemCount: _devices.length,
                             itemBuilder: (context, index) {
-                              final device = AuthorizedDevice(
-                                mac: "11111111",
-                                name: 'TEste de nome',
-                                firstSeen: '2025-02-01 00:00:00',
-                              ); //_devices[index];
+                              final device = _devices[index];
                               return Align(
                                 alignment: Alignment.center,
                                 child: Container(
