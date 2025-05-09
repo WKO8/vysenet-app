@@ -72,7 +72,7 @@ class CustomButton extends StatefulWidget {
 class _CustomButtonState extends State<CustomButton> {
   late final BorderRadius borderRadius;
   late final bool isDisabled;
-  double elevation = 2;
+  double elevation = 0;
 
 
   @override
@@ -86,7 +86,7 @@ class _CustomButtonState extends State<CustomButton> {
   Widget build(BuildContext context) {
     return Material(
       color: isDisabled ? Colors.grey[350] : widget.color,
-      borderRadius: borderRadius,
+      borderRadius: BorderRadius.circular(18),
       elevation: isDisabled ? 0 : elevation,
       child: InkWell(
         onTap: isDisabled

@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vysenet/models/authorized_device.dart';
 import 'package:vysenet/models/device.dart';
 import 'package:vysenet/services/api_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
 import 'package:vysenet/widgets/custom_button.dart';
+
+import '../components/custom_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -42,33 +45,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final int totalScanned = scannedDevices.length;
-    final int totalAuthorized = scannedDevices.where((d) => d.authorized).length;
+    final int totalAuthorized = authorizedDevices.length;
     final int totalUnauthorized = totalScanned - totalAuthorized;
 
     final user = FirebaseAuth.instance.currentUser;
     final String email = user?.email ?? "usuário";
     final String username = email.split('@')[0];
 
-    return Stack(
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFB3E5FC), Color(0xFF81D4FA)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color.fromRGBO(32, 164, 243, 1),
+            Color.fromRGBO(175, 211, 233, 1),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: Colors.transparent,
-          body: Stack(
-            children: [
-              Positioned.fill(
-                top: 120,
-                bottom: 85,
-                child: Container(
+      ),
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.transparent,
+        appBar: CustomAppBar(title: 'VyseNet', index: 2),
+        floatingActionButton: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: SvgPicture.asset("assets/icon/share.svg", width: 30),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Container(
                   margin: const EdgeInsets.symmetric(horizontal: 15),
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
                   decoration: BoxDecoration(
@@ -76,8 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(100),
-                      bottomRight: Radius.circular(100),
+                      bottomLeft: Radius.circular(80),
+                      bottomRight: Radius.circular(80),
                     ),
                   ),
                   child: Column(
@@ -85,42 +97,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       // Foto e nome do usuário
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const CircleAvatar(
-                              radius: 35,
-                              backgroundImage: AssetImage('assets/profile.png'),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(27),
+                              child: Container(
+                                padding: EdgeInsets.all(12),
+                                color: Color.fromRGBO(193, 226, 246, 1),
+                                child: SvgPicture.asset(
+                                  'assets/icon/user_active.svg',
+                                  width: 50,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 15),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  username,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        username,
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromRGBO(68, 138, 181, 1),
+                                        ),
+                                      ),
+                                      const Text(
+                                        "Administrador",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Color.fromRGBO(68, 138, 181, 1),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const Text(
-                                  "Administrador",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 20),
-                      const Divider(thickness: 1, color: Colors.grey),
-
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: const Divider(
+                          height: 1,
+                          color: Color.fromRGBO(68, 138, 181, 1),
+                        ),
+                      ),
                       const SizedBox(height: 20),
 
                       // Tabela de dispositivos
@@ -138,12 +169,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.green,
                               ),
                             ),
-                            const Text(
-                              "Dispositivos autorizados",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.green,
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: const Text(
+                                "Dispositivos autorizados",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.green,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ],
@@ -163,12 +198,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.red,
                               ),
                             ),
-                            const Text(
-                              "Dispositivos não autorizados",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.red,
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: const Text(
+                                "Dispositivos não autorizados",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.red,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ],
@@ -188,113 +227,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Color(0xFF448AB5),
                               ),
                             ),
-                            const Text(
-                              "Dispositivos escaneados",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF448AB5),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: const Text(
+                                "Dispositivos escaneados",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF448AB5),
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Divider(thickness: 1, color: Colors.grey),
-
-                    ],
-                  ),
-                ),
-              ),
-
-              // Header
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      bottomRight: Radius.circular(100),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.globe, size: 40, color: Color(0xFF448AB5)),
-                      SizedBox(width: 10),
-                      Text(
-                        "VyseNet",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF448AB5),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: const Divider(
+                          height: 1,
+                          color: Color.fromRGBO(68, 138, 181, 1),
                         ),
-                      )
+                      ),
+                      const SizedBox(height: 60),
                     ],
                   ),
                 ),
-              ),
-
-              // Botão inferior
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: CustomButton(
-                    scaffoldContext: context,
-                    content: const Text(
-                      "Compartilhar",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    width: 200,
-                    height: 50,
-                    color: const Color(0xFF448AB5),
-                    borderRadius: BorderRadius.circular(50),
-                    onPressed: () {
-                      // Lógica de compartilhamento
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: CustomBottomNavigationBar(
-            firstIcon: const Icon(CupertinoIcons.add_circled, size: 30, color: Color(0xFF20A4F3)),
-            firstText: const Text("Adicionar", style: TextStyle(fontSize: 12, color: Color(0xFF20A4F3))),
-            secondIcon: const Icon(Icons.blur_circular_rounded, size: 33, color: Color(0xFFF8F8FF)),
-            secondText: const Text("Scan", style: TextStyle(fontSize: 12, color: Color(0xFFF8F8FF))),
-            thirdIcon: const Icon(Icons.person, size: 30, color: Color(0xFFF8F8FF)),
-            thirdText: const Text("Perfil", style: TextStyle(fontSize: 12, color: Color(0xFFF8F8FF))),
-            linearGradient: const LinearGradient(
-              colors: [Color(0xFF448AB5), Color(0xFF1E3C4F)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+                const SizedBox(height: 20),
+              ],
             ),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-            ),
-            onPressed: (index) {
-              switch (index) {
-                case 0:
-                  Navigator.pushNamed(context, "/add");
-                  break;
-                case 1:
-                  Navigator.pushNamed(context, "/scan");
-                  break;
-                case 2:
-                  Navigator.pushNamed(context, "/profile");
-                  break;
-              }
-            },
           ),
         ),
-      ],
+        bottomNavigationBar: CustomBottomNavigationBar(
+          index: 2,
+          linearGradient: const LinearGradient(
+            colors: [Color(0xFF448AB5), Color(0xFF1E3C4F)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15),
+          ),
+          onPressed: (index) {
+            switch (index) {
+              case 0:
+                Navigator.pushNamed(context, "/add");
+                break;
+              case 1:
+                Navigator.pushNamed(context, "/scan");
+                break;
+              case 2:
+                Navigator.pushNamed(context, "/profile");
+                break;
+            }
+          },
+        ),
+      ),
     );
   }
 }

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vysenet/services/auth_shared_preference_service.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
-  final Icon firstIcon;
-  final Icon secondIcon;
-  final Icon thirdIcon;
-  final Text firstText;
-  final Text secondText;
-  final Text thirdText;
+  final int index;
   final Color firstColor;
   final Color secondColor;
   final Color thirdColor;
@@ -15,16 +11,11 @@ class CustomBottomNavigationBar extends StatefulWidget {
   final LinearGradient? linearGradient;
   final BorderRadius? borderRadius;
   final MainAxisAlignment mainAxisAlignment;
-  final void Function(int)? onPressed; // ⬅️ ALTERADO para aceitar índice
+  final void Function(int)? onPressed;
 
   const CustomBottomNavigationBar({
     super.key,
-    required this.firstIcon,
-    required this.secondIcon,
-    required this.thirdIcon,
-    this.firstText = const Text(""),
-    this.secondText = const Text(""),
-    this.thirdText = const Text(""),
+    required this.index,
     this.firstColor = Colors.white,
     this.secondColor = Colors.white,
     this.thirdColor = Colors.white,
@@ -49,9 +40,12 @@ class CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   void initState() {
     super.initState();
-    borderRadius = widget.borderRadius ??
+    borderRadius =
+        widget.borderRadius ??
         const BorderRadius.only(
-            topLeft: Radius.circular(15), topRight: Radius.circular(15));
+          topLeft: Radius.circular(15),
+          topRight: Radius.circular(15),
+        );
     hasLinearGradient = widget.linearGradient != null;
     _loadLoginState();
   }
@@ -67,53 +61,67 @@ class CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      height: 70,
-      decoration: hasLinearGradient
-          ? BoxDecoration(
-              gradient: widget.linearGradient, borderRadius: borderRadius)
-          : BoxDecoration(color: widget.backgroundColor),
+      height: 90,
+      padding: EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        color: Color.fromRGBO(248, 248, 255, 1),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 0),
             child: Row(
               mainAxisAlignment: widget.mainAxisAlignment,
               children: [
                 // Botão 0 - Adicionar
                 GestureDetector(
-                  onTap: () => widget.onPressed?.call(0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(widget.firstIcon.icon, color: widget.firstColor),
-                      Text(widget.firstText.data ?? "",
-                          style: widget.firstText.style),
-                    ],
+                  onTap: () {
+                    if (widget.index == 0) {
+                      return;
+                    }
+
+                    widget.onPressed?.call(0);
+                  },
+                  child: SvgPicture.asset(
+                    widget.index == 0
+                        ? "assets/icon/plus_active.svg"
+                        : "assets/icon/plus_off.svg",
+                    width: 40,
                   ),
                 ),
                 // Botão 1 - Scan
                 GestureDetector(
-                  onTap: () => widget.onPressed?.call(1),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(widget.secondIcon.icon, color: widget.secondColor),
-                      Text(widget.secondText.data ?? "",
-                          style: widget.secondText.style),
-                    ],
+                  onTap: () {
+                    if (widget.index == 1) {
+                      return;
+                    }
+                    widget.onPressed?.call(1);
+                  },
+                  child: SvgPicture.asset(
+                    widget.index == 1
+                        ? "assets/icon/scan_active.svg"
+                        : "assets/icon/scan_off.svg",
+                    width: 40,
                   ),
                 ),
                 // Botão 2 - Perfil
                 GestureDetector(
-                  onTap: () => widget.onPressed?.call(2),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(widget.thirdIcon.icon, color: widget.thirdColor),
-                      Text(widget.thirdText.data ?? "",
-                          style: widget.thirdText.style),
-                    ],
+                  onTap: () {
+                    if (widget.index == 2) {
+                      return;
+                    }
+                    widget.onPressed?.call(2);
+                  },
+                  child: SvgPicture.asset(
+                    widget.index == 2
+                        ? "assets/icon/user_active.svg"
+                        : "assets/icon/user_off.svg",
+                    width: 40,
                   ),
                 ),
               ],
