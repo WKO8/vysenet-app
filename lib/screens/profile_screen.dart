@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:vysenet/models/authorized_device.dart';
 import 'package:vysenet/models/device.dart';
 import 'package:vysenet/services/api_service.dart';
 import 'package:vysenet/services/auth_shared_preference_service.dart';
+import 'package:vysenet/services/pdf_report_service.dart';
 import 'package:vysenet/widgets/custom_bottom_navigation_bar.dart';
 
 import '../components/custom_app_bar.dart';
@@ -51,6 +53,128 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _generateAndShareReport() async {
+    try {
+      // Mostra indicador de loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      // Gera o PDF
+      final pdfBytes = await PdfReportService.generateNetworkReport(
+        scannedDevices: scannedDevices,
+        authorizedDevices: authorizedDevices,
+      );
+
+      // Remove o loading
+      Navigator.of(context).pop();
+
+      // Mostra opções para o usuário
+      _showShareOptions(pdfBytes);
+    } catch (e) {
+      // Remove o loading em caso de erro
+      Navigator.of(context).pop();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao gerar relatório: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showShareOptions(Uint8List pdfBytes) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 50,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Relatório Gerado com Sucesso!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF448AB5),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.share, color: Color(0xFF448AB5)),
+                title: const Text('Compartilhar'),
+                subtitle: const Text('Enviar por email, WhatsApp, etc.'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await PdfReportService.shareReport(pdfBytes);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.print, color: Color(0xFF448AB5)),
+                title: const Text('Imprimir'),
+                subtitle: const Text('Visualizar e imprimir o relatório'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await PdfReportService.printReport(pdfBytes);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.save, color: Color(0xFF448AB5)),
+                title: const Text('Salvar no Dispositivo'),
+                subtitle: const Text('Salvar arquivo PDF localmente'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  try {
+                    final path = await PdfReportService.saveReportToFile(pdfBytes);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Relatório salvo em: $path'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao salvar: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final int totalScanned = scannedDevices.length;
@@ -76,13 +200,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         key: _scaffoldKey,
         backgroundColor: Colors.transparent,
         appBar: CustomAppBar(title: 'VyseNet', index: 2),
-        floatingActionButton: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(100),
+        floatingActionButton: GestureDetector(
+          onTap: _generateAndShareReport,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: SvgPicture.asset("assets/icon/share.svg", width: 30),
           ),
-          child: SvgPicture.asset("assets/icon/share.svg", width: 30),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
